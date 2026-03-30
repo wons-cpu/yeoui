@@ -1,6 +1,6 @@
 # Yeoui (여의) 🔮
 
-**Your environment is the DJ. An AI-powered driving companion that reads the road and plays the perfect song — hands-free, real-time, zero input required.**
+**Your environment is the DJ. An AI-powered driving companion that reads the road and plays the perfect song.**
 
 ## 💡 Why I started building this
 
