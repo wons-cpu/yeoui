@@ -8,7 +8,7 @@ As someone who composes music, I'm obsessed with how sound matches a moment. But
 
 So I started building Yeoui.
 
-The app reads your driving context in real time — GPS speed, weather, time of day — and maps it directly to Spotify's audio features (BPM, energy, valence). A late-night empty highway gets a completely different soundtrack than a rainy rush hour in Atlanta. No buttons, no voice commands—it just plays what fits.
+The app reads your driving context in real time (GPS speed, weather, time of day) and maps it directly to Spotify's audio features (BPM, energy, valence). A late-night empty highway gets a completely different soundtrack than a rainy rush hour in Atlanta. No buttons, no voice commands—it just plays what fits.
 
 ## 🔮 The UX: "Yeouiju"
 
