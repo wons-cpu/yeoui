@@ -1,127 +1,160 @@
-# Yeoui (여의)
+# ⚡ Prompt Master Workbench
 
-**An AI-powered driving companion that reads the road and plays the perfect song — hands-free, real-time, zero input required.**
+**An AI-powered prompt engineering tool that generates production-ready prompts optimized for 20+ AI tools.**
 
-## What is this?
+Pick a target tool → describe your goal → get a prompt that works on the first try.
 
-I got tired of fumbling with Spotify while driving. Skipping songs at 70mph is sketchy, and playlists don't adapt to what's actually happening around you. So I started building Yeoui.
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
+![Claude API](https://img.shields.io/badge/Claude_API-Sonnet-A78BFA)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-The app reads your driving context in real time — GPS speed, weather, time of day — and maps it directly to Spotify's audio features (BPM, energy, valence) to queue tracks that match the moment. Highway at night gets a different soundtrack than Atlanta rush hour in the rain. No buttons, no voice commands, no interaction needed.
+---
 
-The name comes from 여의주 (Yeouiju), a wish-granting orb from Korean mythology. In the app, context data flows onto the screen as floating tag snippets and converges into an orb that generates your playlist. It's a metaphor, but it also solves a real UX problem: **how do you control a music app when you can't touch your phone?** You don't. The app controls itself.
+## Demo
 
-## The Bigger Picture: Music Map
+**Select your tool and describe what you need:**
 
-Every session logs what you listened to, where, at what speed, in what weather, and whether you skipped or finished the track. Over time this builds a **Music Map** — a complete listening footprint across driving contexts.
+![Prompt Master — Input](./assets/screenshot-input.png)
 
-That data does two things: it makes recommendations smarter with every drive, and it creates something shareable. Think Spotify Wrapped, but for your actual life on the road.
+**Get a production-ready prompt, optimized for that tool:**
+
+![Prompt Master — Output](./assets/screenshot-output.png)
+
+---
+
+## The Problem
+
+Every AI tool behaves differently. A prompt optimized for Claude fails on GPT-4o. Midjourney needs comma-separated descriptors, not prose. Autonomous agents like Devin need explicit stop conditions or they spiral. Most users don't know these differences — they write one generic prompt and wonder why the output is wrong.
+
+## The Solution
+
+Prompt Master Workbench encodes tool-specific optimization rules for **20+ AI platforms** into a single interface. It applies a diagnostic checklist to catch common prompt failures (vague verbs, missing format locks, scope leaks, reasoning technique mismatches) and routes through the correct prompt template — all before the user hits "generate."
+
+The result: a single copyable prompt, optimized for the target tool's architecture and failure modes.
+
+---
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    subgraph INPUT ["Input"]
-        GPS["GPS / Speed"]
-        WEATHER["Weather API"]
-        TIME["Time of Day"]
-        VISION["Vision (future)"]
-    end
-
-    subgraph ENGINE ["Context Engine"]
-        CA["Context Analyzer"]
-        MAPPER["Audio Feature Mapper\n(BPM, Valence, Energy)"]
-        ALGO["Recommendation Logic"]
-    end
-
-    subgraph OUTPUT ["Output"]
-        REMOTE["Spotify App Remote\n(Playback)"]
-        WEBAPI["Spotify Web API\n(Audio Features)"]
-        ROOM["Room DB\n(Music Map)"]
-    end
-
-    GPS --> CA
-    WEATHER --> CA
-    TIME --> CA
-    VISION -.-> CA
-
-    CA --> MAPPER
-    MAPPER --> ALGO
-    ALGO --> REMOTE
-    ALGO --> WEBAPI
-    REMOTE --> ROOM
-    WEBAPI --> MAPPER
-
-    ROOM --> |"Music Map"| ROOM
 ```
+┌─────────────────────────────────────┐
+│         React Frontend (Vite)       │
+│  ┌──────────┐  ┌─────────────────┐  │
+│  │ Tool Grid │  │ Template Select │  │
+│  └─────┬────┘  └───────┬─────────┘  │
+│        └───────┬───────┘            │
+│          ┌─────▼──────┐             │
+│          │  Composer   │             │
+│          │  (builds    │             │
+│          │  user msg)  │             │
+│          └─────┬──────┘             │
+└────────────────┼────────────────────┘
+                 │ POST /v1/messages
+                 ▼
+┌─────────────────────────────────────┐
+│      Claude Sonnet API              │
+│  ┌───────────────────────────────┐  │
+│  │  System Prompt (Prompt Master │  │
+│  │  v1.4 knowledge base)         │  │
+│  │  • Tool routing rules         │  │
+│  │  • 11 prompt templates        │  │
+│  │  • Diagnostic checklist       │  │
+│  │  • Fabrication guardrails     │  │
+│  └───────────────────────────────┘  │
+└─────────────────────────────────────┘
+```
+
+**Key design decisions:**
+
+- **System prompt as knowledge base.** The entire Prompt Master v1.4 skill — tool-specific routing for Claude, GPT-4o, Gemini, o1/o3, Midjourney, Stable Diffusion, Claude Code, Cursor, Devin, and more — is compiled into a structured system prompt. This means every API call carries full domain knowledge without requiring a database or retrieval layer.
+
+- **Template routing.** The system auto-selects from 11 prompt templates (RTF, CO-STAR, RISEN, CRISPE, Chain of Thought, Few-Shot, File-Scope, ReAct, Visual Descriptor, ComfyUI, Decompiler) based on the tool + task combination, or the user can override manually.
+
+- **Diagnostic pre-processing.** Before generating, the system scans for 6 categories of prompt failure (task, context, format, scope, reasoning, agentic) and silently fixes them — converting vague verbs to precise operations, adding missing format locks, removing Chain of Thought from reasoning-native models, and injecting stop conditions for agents.
+
+- **Fabrication guardrails.** The system hard-blocks techniques that cause fabrication in single-prompt execution: Mixture of Experts, Tree of Thought, Graph of Thought, Universal Self-Consistency, and layered prompt chaining.
+
+---
+
+## Supported Tools
+
+| Category | Tools |
+|----------|-------|
+| **Language Models** | Claude, ChatGPT/GPT-4o, Gemini, o1/o3, DeepSeek-R1, Qwen, Llama/Mistral, Perplexity |
+| **Code & Agents** | Claude Code, Cursor/Windsurf, GitHub Copilot, Bolt/v0/Lovable, Devin, Antigravity |
+| **Image & Video** | Midjourney, DALL-E 3, Stable Diffusion, ComfyUI, Sora/Runway |
+| **Other** | ElevenLabs, Zapier/Make/n8n, Ollama |
+
+---
+
+## Quick Start
+
+```bash
+# Clone
+git clone https://github.com/wons-cpu/prompt-master-workbench.git
+cd prompt-master-workbench
+
+# Install
+npm install
+
+# Run
+npm run dev
+```
+
+The app opens at `http://localhost:3000`. On first launch, you'll be prompted for your [Anthropic API key](https://console.anthropic.com/settings/keys). The key is stored in your browser's localStorage and is only sent to Anthropic's API.
+
+### Build for Production
+
+```bash
+npm run build
+npm run preview
+```
+
+> **Note:** In production, the app calls the Anthropic API directly using the `anthropic-dangerous-direct-browser-access` header. For a production deployment serving other users, you should add a backend proxy to keep API keys server-side.
+
+---
+
+## How It Works
+
+1. **Select a target tool** from the grid (20+ options across LLMs, code agents, image generators, workflow tools).
+2. **Describe your goal** in plain language — what you want the AI to do.
+3. *(Optional)* Open **Advanced Options** to force a specific template or add extra context.
+4. **Generate.** The system routes through tool-specific rules, applies the diagnostic checklist, selects the optimal template, and returns a single copyable prompt block.
+5. **Paste** the prompt into your target tool. It should work on the first try.
+
+---
 
 ## Tech Stack
 
-- **Language**: Kotlin
-- **Architecture**: MVVM (ViewModel + LiveData)
-- **Playback**: Spotify App Remote SDK
-- **API**: Spotify Web API via Retrofit2
-- **Local DB**: Room
-- **Sensors**: Android Location Services, OpenWeatherMap API
-- **Future**: CameraX + ML Kit for vision-based context, Hilt for DI
+- **Frontend:** React 18, Vite 6, CSS-in-JS (no external UI library)
+- **API:** Anthropic Claude Sonnet via Messages API
+- **State:** React hooks + localStorage for persistence
+- **Design:** Custom dark theme, JetBrains Mono + Instrument Serif typography, CSS keyframe animations
 
-## Current Status
-
-**What works:**
-- Full Spotify App Remote SDK integration. The app connects to Spotify in the background and handles playback control — play, pause, skip, queue. Getting this stable was honestly the biggest technical hurdle, and it's done.
-
-**What I'm building next:**
-- Input pipeline: GPS speed collection + OpenWeatherMap integration
-- The core mapping engine: speed → target BPM range, weather → valence shift, time of day → energy curve
-- Spotify Web API integration to pull audio features per track
-
-**Down the road:**
-- Room DB logging for the Music Map (track + full context snapshot + skip/complete behavior)
-- Yeouiju orb animation and the snippet tag UI
-- Social sharing — Music Map cards designed for Instagram Stories
+---
 
 ## Project Structure
 
 ```
-app/src/main/java/com/yeoui/
-├── data/
-│   ├── local/
-│   │   └── MusicContextEntity.kt       # Room entity — one row per song+context
-│   ├── remote/
-│   │   └── SpotifyWebApiService.kt     # Retrofit interface for audio features
-│   └── repository/
-│       └── MusicRepository.kt
-├── domain/
-│   └── model/
-│       └── DrivingContext.kt           # speed/weather/time → intensity mapping
-├── player/
-│   └── SpotifyRemoteManager.kt        # Spotify App Remote wrapper
-├── ui/
-│   ├── main/
-│   └── orb/
-└── util/
+prompt-master-workbench/
+├── index.html              # Entry point
+├── package.json
+├── vite.config.js          # Dev server config
+├── assets/                 # Screenshots
+├── src/
+│   ├── main.jsx            # React mount
+│   └── App.jsx             # Full application
+├── LICENSE
+└── README.md
 ```
-
-## Setup
-
-You'll need:
-- Android Studio Hedgehog or later
-- Spotify Premium account with the Spotify app installed
-- Spotify Developer credentials ([dashboard](https://developer.spotify.com/dashboard))
-
-```bash
-git clone https://github.com/YOUR_USERNAME/yeoui.git
-```
-
-Add to `local.properties`:
-```properties
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_REDIRECT_URI=yeoui://callback
-```
-
-## Why I'm building this
-
-I'm studying Computer Science at Georgia Tech. I started in Computer Engineering, but building Yeoui made something click — I realized the problems I actually want to solve live in software: turning noisy real-world signals into something intelligent, personal, and useful. This project is where that shift happened, and I'm still building it.
 
 ---
 
-Built by Wonseok
+## License
+
+MIT — see [LICENSE](./LICENSE).
+
+---
+
+Built by **Wonseok** · Powered by the [Prompt Master](https://github.com/dontbother/prompt-master) skill system × Claude Sonnet
